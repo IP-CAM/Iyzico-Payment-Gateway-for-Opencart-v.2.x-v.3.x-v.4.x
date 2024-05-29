@@ -1,9 +1,15 @@
 <?php
+
 namespace Opencart\Catalog\Model\Extension\iyzico\Total;
-class iyzico extends \Opencart\System\Engine\Model{
 
-    public function confirm($order_info, $order_total){
+use Opencart\System\Engine\Model;
 
+class IyzicoFee extends Model
+{
+
+    public function confirm($order_info, $order_total)
+    {
+        return true;
     }
 
 }

@@ -67,4 +67,10 @@ $_['checkout_language_automatic']   = 'Otomatik';
 $_['checkout_language_turkish']     = 'Türkçe';
 $_['checkout_language_english']     = 'İngilizce';
 
+$_['admin_active_button'] = 'Aktifleştir';
+$_['text_extension'] = 'Eklentiler';
+$_['breadcrumb_heading_title'] = 'iyzico Modül Ayarları';
+$_['copy_clipboard_text'] = 'Panoya Kopyalandı: ';
+$_['error_design'] = 'Görünüm Gerekli!';
+
 $_['text_info_label']     = '	&nbsp;Problem yaşıyorsanız iletişime geçiniz.<a href="mailto:entegrasyon@iyzico.com">	&nbsp;entegrasyon@iyzico.com</a>';

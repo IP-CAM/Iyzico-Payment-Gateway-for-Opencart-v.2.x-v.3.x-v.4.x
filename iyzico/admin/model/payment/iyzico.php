@@ -1,8 +1,12 @@
 <?php
 namespace Opencart\Admin\Model\Extension\iyzico\Payment;
-class iyzico extends \Opencart\System\Engine\Model {
 
-    public function install() {
+use Opencart\System\Engine\Model;
+class iyzico extends Model
+{
+
+    public function install()
+    {
         $this->db->query("
 			CREATE TABLE IF NOT EXISTS `" . DB_PREFIX . "iyzico_order` (
 			  `iyzico_order_id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -25,36 +29,37 @@ class iyzico extends \Opencart\System\Engine\Model {
 			) ENGINE=MyISAM DEFAULT COLLATE=utf8_general_ci;");
     }
 
-    public function uninstall() {
+    public function uninstall()
+    {
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "iyzico_order`;");
         $this->db->query("DROP TABLE IF EXISTS `" . DB_PREFIX . "iyzico_card`;");
     }
 
-    public function pkiStringGenerate($object_data) {
-
+    public function pkiStringGenerate($objectData)
+    {
         $pki_value = "[";
-        foreach ($object_data as $key => $data) {
-            if(is_object($data)) {
+        foreach ($objectData as $key => $data) {
+            if (is_object($data)) {
                 $name = var_export($key, true);
                 $name = str_replace("'", "", $name);
-                $pki_value .= $name."=[";
+                $pki_value .= $name . "=[";
                 $end_key = count(get_object_vars($data));
-                $count 	 = 0;
+                $count = 0;
                 foreach ($data as $key => $value) {
                     $count++;
                     $name = var_export($key, true);
                     $name = str_replace("'", "", $name);
-                    $pki_value .= $name."="."".$value;
-                    if($end_key != $count)
+                    $pki_value .= $name . "=" . "" . $value;
+                    if ($end_key != $count)
                         $pki_value .= ",";
                 }
                 $pki_value .= "]";
-            } else if(is_array($data)) {
+            } else if (is_array($data)) {
                 $name = var_export($key, true);
                 $name = str_replace("'", "", $name);
-                $pki_value .= $name."=[";
+                $pki_value .= $name . "=[";
                 $end_key = count($data);
-                $count 	 = 0;
+                $count = 0;
                 foreach ($data as $key => $result) {
                     $count++;
                     $pki_value .= "[";
@@ -63,90 +68,92 @@ class iyzico extends \Opencart\System\Engine\Model {
                         $name = var_export($key, true);
                         $name = str_replace("'", "", $name);
 
-                        $pki_value .= $name."="."".$item;
-                        if(end($result) != $item) {
+                        $pki_value .= $name . "=" . "" . $item;
+                        $reResult = (array) $result;
+                        $newResult = $reResult[array_key_last($reResult)];
+
+                        if ($newResult != $item) {
                             $pki_value .= ",";
                         }
-                        if(end($result) == $item) {
-                            if($end_key != $count) {
-                                $pki_value .= "], ";
 
+                        if ($newResult == $item) {
+
+                            if ($end_key != $count) {
+                                $pki_value .= "], ";
                             } else {
                                 $pki_value .= "]";
                             }
                         }
                     }
                 }
-                if(end($data) == $result)
-                    $pki_value .= "]";
 
+                $reData = (array) $data;
+                $newData = $reData[array_key_last($reData)];
+                if ($newData == $result)
+                    $pki_value .= "]";
             } else {
                 $name = var_export($key, true);
                 $name = str_replace("'", "", $name);
 
-                $pki_value .= $name."="."".$data."";
+                $pki_value .= $name . "=" . "" . $data . "";
             }
-            if(end($object_data) != $data)
+
+            $reObjectData = (array) $objectData;
+            $newobjectData = $reObjectData[array_key_last($reObjectData)];
+
+            if ($newobjectData != $data)
                 $pki_value .= ",";
         }
         $pki_value .= "]";
         return $pki_value;
     }
 
-    public function authorizationGenerate($api_key,$secret_key,$pki) {
+    public function authorizationGenerate($api_key, $secret_key, $pki)
+    {
 
-        $rand_value	= rand(100000,99999999);
-        $hash_value = $api_key.$rand_value.$secret_key.$pki;
-        $hash 		= base64_encode(sha1($hash_value,true));
+        $rand_value = rand(100000, 99999999);
+        $hash_value = $api_key . $rand_value . $secret_key . $pki;
+        $hash = base64_encode(sha1($hash_value, true));
 
-        $authorization 	= 'IYZWS '.$api_key.':'.$hash;
+        $authorization = 'IYZWS ' . $api_key . ':' . $hash;
 
         $authorization_data = array(
             'authorization' => $authorization,
-            'rand_value' 	=> $rand_value
+            'rand_value' => $rand_value
         );
 
         return $authorization_data;
     }
 
-    public function apiConnection($authorization_data,$api_connection_object) {
+    public function apiConnection($authorization_data, $api_connection_object)
+    {
 
-        $url 		= $this->config->get('payment_iyzico_api_url');
-        $url 		= $url.'/payment/bin/check';
+        $url = $this->config->get('payment_iyzico_api_url');
+        $url = $url . '/payment/bin/check';
 
         $api_connection_object = json_encode($api_connection_object);
 
-        return $this->curlPost($api_connection_object,$authorization_data,$url);
+        return $this->curlPost($api_connection_object, $authorization_data, $url);
 
     }
 
-    public function overlayScript($authorization_data,$overlay_script_object) {
+    public function iyzicoPostWebhookUrlKey($authorization_data, $webhook_active_post)
+    {
 
-        $url   = "https://iyziup.iyzipay.com/";
-        $url   = $url."v1/iyziup/protected/shop/detail/overlay-script";
+        $url = $this->config->get('payment_iyzico_api_url');
+        $url = $url . '/payment/notification/update';
 
-        $overlay_script_object = json_encode($overlay_script_object);
+        $webhook_active_post = json_encode($webhook_active_post);
 
-        return $this->curlPost($overlay_script_object,$authorization_data,$url);
+        return $this->curlPost($webhook_active_post, $authorization_data, $url);
 
     }
 
-    public function iyzicoPostWebhookUrlKey($authorization_data,$webhook_active_post) {
-
-       $url        = $this->config->get('payment_iyzico_api_url');
-       $url        = $url.'/payment/notification/update';
-
-       $webhook_active_post = json_encode($webhook_active_post);
-
-       return $this->curlPost($webhook_active_post,$authorization_data,$url);
-
-   }
-
-    public function curlPost($json,$authorizationData,$url) {
+    public function curlPost($json, $authorizationData, $url)
+    {
 
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
-        $content_length = 0;
         if ($json) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
@@ -157,9 +164,11 @@ class iyzico extends \Opencart\System\Engine\Model {
         curl_setopt($curl, CURLOPT_TIMEOUT, 10);
 
         curl_setopt(
-            $curl, CURLOPT_HTTPHEADER, array(
-                "Authorization: " .$authorizationData['authorization'],
-                "x-iyzi-rnd:".$authorizationData['rand_value'],
+            $curl,
+            CURLOPT_HTTPHEADER,
+            array(
+                "Authorization: " . $authorizationData['authorization'],
+                "x-iyzi-rnd:" . $authorizationData['rand_value'],
                 "Content-Type: application/json",
             )
         );
