@@ -4,8 +4,8 @@ use stdClass;
 class paywithiyzico extends \Opencart\System\Engine\Controller
  {
 
-    private $module_version      = '1.0';
-    private $module_product_name = 'starter-1.0';
+    private $module_version      = '1.1';
+    private $module_product_name = 'starter-1.1';
 
     private $error = array();
 
@@ -30,14 +30,12 @@ class paywithiyzico extends \Opencart\System\Engine\Controller
 
         $this->load->model('extension/paywithiyzico/payment/paywithiyzico');
         $this->model_extension_paywithiyzico_payment_paywithiyzico->install();
-        $this->model_setting_event->addEvent('pwi_logo_css_for_order_history', 'catalog/controller/common/footer/after', 'extension/payment/paywithiyzico/injectPwiLogoCss');
     }
 
     public function uninstall() {
 
         $this->load->model('extension/paywithiyzico/payment/paywithiyzico');
         $this->model_extension_paywithiyzico_payment_paywithiyzico->uninstall();
-        $this->model_setting_event->deleteEventByCode('pwi_logo_css_for_order_history');
     }
 
     public function index(): void {

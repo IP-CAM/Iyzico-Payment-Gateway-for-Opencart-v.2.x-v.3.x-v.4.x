@@ -5,3 +5,4 @@ $_['pwi_img_title'] 			= '<img width="20%" src="admin/view/image/payment/pay-wit
 $_['payment_failed'] 		  	= 'Ödeme Başarısız';
 $_['payment_field_desc'] 	 	= 'Ödeme Numarası: ';
 $_['installement_field_desc'] 	= ' Taksit ';
+$_['paywithiyzico'] 			= 'iyzico ile Öde';
