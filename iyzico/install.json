@@ -1,8 +1,6 @@
 {
-    "name": "iyzico",
-    "code": "iyzico",
-    "license": "GPL",
-    "version": "2.2.0",
-    "author": "iyzico",
-    "link": "https://www.iyzico.com/"
+  "name": "iyzico Payment Gateway",
+  "version": "2.2.0",
+  "author": "iyzico",
+  "link": "https://iyzico.com/"
 }
